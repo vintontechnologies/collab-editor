@@ -19,3 +19,23 @@ export interface DocumentItem {
   created_at: string;
   updated_at: string;
 }
+
+export type LinkRole = 'off' | 'viewer' | 'editor';
+
+export interface Member {
+  user_id: number;
+  email: string;
+  name: string;
+  avatar: string;
+  role: Role;
+}
+
+export interface PendingInvite {
+  email: string;
+  role: Role;
+}
+
+export interface MembersResponse {
+  members: Member[];
+  pending_invites: PendingInvite[];
+}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Header from '../components/Header';
+import ShareDialog from '../components/ShareDialog';
 import { api } from '../services/api';
 import type { DocumentItem } from '../types';
 
@@ -9,6 +10,7 @@ export default function DocumentPage() {
   const { id } = useParams();
   const [doc, setDoc] = useState<DocumentItem | null>(null);
   const [error, setError] = useState('');
+  const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
     api
@@ -21,7 +23,14 @@ export default function DocumentPage() {
     <>
       <Header />
       <main className="container">
-        <Link to="/">&larr; Back to documents</Link>
+        <div className="toolbar">
+          <Link to="/">&larr; Back to documents</Link>
+          {doc && (
+            <button className="btn primary" onClick={() => setSharing(true)}>
+              Share
+            </button>
+          )}
+        </div>
         {error && <div className="alert">{error}</div>}
         {doc && (
           <div className="card" style={{ marginTop: 16 }}>
@@ -33,6 +42,7 @@ export default function DocumentPage() {
           </div>
         )}
       </main>
+      {sharing && doc && <ShareDialog doc={doc} onClose={() => setSharing(false)} />}
     </>
   );
 }
