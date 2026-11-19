@@ -73,3 +73,17 @@ class Invitation(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["document", "email"], name="one_invite_per_email_per_document")
         ]
+
+
+class DocumentUpdate(models.Model):
+    """Append-only log of Yjs updates. New clients replay it to load the document."""
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="updates")
+    data = models.BinaryField()
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+        indexes = [models.Index(fields=["document", "id"])]
