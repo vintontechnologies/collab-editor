@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import CodeEditor from '../components/CodeEditor';
 import Header from '../components/Header';
 import ShareDialog from '../components/ShareDialog';
 import { api } from '../services/api';
 import type { DocumentItem } from '../types';
 
-// Placeholder: the real editor and whiteboard are added in the next steps.
 export default function DocumentPage() {
   const { id } = useParams();
   const [doc, setDoc] = useState<DocumentItem | null>(null);
@@ -22,23 +22,47 @@ export default function DocumentPage() {
   return (
     <>
       <Header />
-      <main className="container">
+      <main className="container wide">
         <div className="toolbar">
-          <Link to="/">&larr; Back to documents</Link>
+          <Link to="/" className="back-link">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            Back to documents
+          </Link>
           {doc && (
-            <button className="btn primary" onClick={() => setSharing(true)}>
-              Share
-            </button>
+            <div className="toolbar-right">
+              <span className={`badge role-${doc.my_role}`}>{doc.my_role}</span>
+              <button className="btn primary" onClick={() => setSharing(true)}>
+                Share
+              </button>
+            </div>
           )}
         </div>
         {error && <div className="alert">{error}</div>}
-        {doc && (
+        {doc && <h2 style={{ marginTop: 12 }}>{doc.title}</h2>}
+
+        {doc?.doc_type === 'code' && (
+          <CodeEditor
+            key={doc.id}
+            docId={doc.id}
+            initialLanguage={doc.language}
+            canWrite={doc.my_role !== 'viewer'}
+          />
+        )}
+        {doc?.doc_type === 'whiteboard' && (
           <div className="card" style={{ marginTop: 16 }}>
-            <h2>{doc.title}</h2>
-            <p className="muted">
-              {doc.doc_type} &middot; your role: <strong>{doc.my_role}</strong>
-            </p>
-            <p>The collaborative editor will appear here.</p>
+            <p>The whiteboard is coming next.</p>
           </div>
         )}
       </main>

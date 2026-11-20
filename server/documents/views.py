@@ -6,7 +6,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Document, Membership
+from .models import Document, DocumentUpdate, Membership
 from .permissions import DocumentPermission
 from .serializers import DocumentSerializer
 
@@ -51,5 +51,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
             yjs_state=src.yjs_state,
         )
         Membership.objects.create(document=copy, user=request.user, role=Membership.Role.OWNER)
+        # The content lives in the update log, so copy that too
+        DocumentUpdate.objects.bulk_create(
+            DocumentUpdate(document=copy, data=bytes(u.data), author=u.author)
+            for u in src.updates.all()
+        )
         copy.my_role = Membership.Role.OWNER
         return Response(self.get_serializer(copy).data, status=status.HTTP_201_CREATED)

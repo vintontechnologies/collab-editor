@@ -39,3 +39,22 @@ export interface MembersResponse {
   members: Member[];
   pending_invites: PendingInvite[];
 }
+
+export interface OnlineUser {
+  id: number;
+  name: string;
+  color: string;
+  colorLight: string;
+}
+
+export interface VersionInfo {
+  number: number;
+  author_name: string;
+  kind: 'auto' | 'restore';
+  label: string;
+  created_at: string;
+}
+
+export interface VersionDetail extends VersionInfo {
+  updates: string[]; // base64 Yjs updates
+}

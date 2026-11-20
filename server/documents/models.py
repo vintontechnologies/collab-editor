@@ -87,3 +87,22 @@ class DocumentUpdate(models.Model):
     class Meta:
         ordering = ["id"]
         indexes = [models.Index(fields=["document", "id"])]
+
+
+class Version(models.Model):
+    """A bookmark in the update log: the document as it was after update `last_update_id`."""
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="versions")
+    number = models.PositiveIntegerField()
+    last_update_id = models.BigIntegerField()
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+"
+    )
+    kind = models.CharField(max_length=10, default="auto")  # "auto" or "restore"
+    label = models.CharField(max_length=100, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-number"]
+        constraints = [
+            models.UniqueConstraint(fields=["document", "number"], name="unique_version_number")
+        ]
