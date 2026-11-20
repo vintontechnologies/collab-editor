@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import CodeEditor from '../components/CodeEditor';
 import Header from '../components/Header';
 import ShareDialog from '../components/ShareDialog';
+import Whiteboard from '../components/Whiteboard';
 import { api } from '../services/api';
 import type { DocumentItem } from '../types';
 
@@ -61,9 +62,7 @@ export default function DocumentPage() {
           />
         )}
         {doc?.doc_type === 'whiteboard' && (
-          <div className="card" style={{ marginTop: 16 }}>
-            <p>The whiteboard is coming next.</p>
-          </div>
+          <Whiteboard key={doc.id} docId={doc.id} canWrite={doc.my_role !== 'viewer'} />
         )}
       </main>
       {sharing && doc && <ShareDialog doc={doc} onClose={() => setSharing(false)} />}
