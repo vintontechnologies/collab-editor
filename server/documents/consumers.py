@@ -26,6 +26,9 @@ ROLE_RECHECK_SECONDS = 10  # how often a connected user's role is re-checked
 # Automatic snapshot rules (from the project brief)
 SNAPSHOT_EVERY_UPDATES = 50
 SNAPSHOT_EVERY_SECONDS = 30
+# Checking the snapshot rule costs several queries, so it runs every few edits, not on each one
+SNAPSHOT_CHECK_EVERY = 10
+SNAPSHOT_CHECK_SECONDS = 2
 
 
 class DocumentConsumer(AsyncWebsocketConsumer):
@@ -37,6 +40,8 @@ class DocumentConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.joined = False
+        self.edits_since_check = 0
+        self.last_snapshot_check = time.monotonic()
         self.user = self.scope["user"]
         self.doc_id = self.scope["url_route"]["kwargs"]["doc_id"]
         self.group = f"doc_{self.doc_id}"
@@ -67,6 +72,8 @@ class DocumentConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_discard(self.group, self.channel_name)
             await self.broadcast(bytes([MSG_LEAVE]) + self.identity())
             # Capture edits made since the last snapshot when someone leaves
+            if self.edits_since_check:
+                await self.touch_document()
             number = await self.create_snapshot(force=True)
             if number:
                 await self.notify_version(number)
@@ -82,11 +89,19 @@ class DocumentConsumer(AsyncWebsocketConsumer):
                 await self.send(bytes_data=bytes([MSG_ERROR]) + b"read-only")
                 return
             if payload:
-                await self.save_update(payload)
+                # Relay first, so other users see the edit without waiting for the database
                 await self.broadcast(bytes_data)
-                number = await self.create_snapshot()  # only if the 50 / 30 s rule is met
-                if number:
-                    await self.notify_version(number)
+                await self.save_update(payload)
+                self.edits_since_check += 1
+                now = time.monotonic()
+                if (self.edits_since_check >= SNAPSHOT_CHECK_EVERY
+                        or now - self.last_snapshot_check > SNAPSHOT_CHECK_SECONDS):
+                    self.edits_since_check = 0
+                    self.last_snapshot_check = now
+                    await self.touch_document()
+                    number = await self.create_snapshot()  # only if the 50 / 30 s rule is met
+                    if number:
+                        await self.notify_version(number)
         elif kind == MSG_AWARENESS:
             # Cursors are allowed for every member, including viewers
             if await self.current_role() is not None:
@@ -159,7 +174,10 @@ class DocumentConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def save_update(self, payload: bytes):
         DocumentUpdate.objects.create(document_id=self.doc_id, data=payload, author=self.user)
-        # Keeps "Updated ..." on the dashboard accurate
+
+    @database_sync_to_async
+    def touch_document(self):
+        # Keeps "Updated ..." on the dashboard accurate (every few edits, not on each one)
         Document.objects.filter(pk=self.doc_id).update(updated_at=timezone.now())
 
     @database_sync_to_async

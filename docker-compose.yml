@@ -5,14 +5,57 @@ services:
     environment:
       POSTGRES_DB: collab
       POSTGRES_USER: collab
-      POSTGRES_PASSWORD: collab
-    ports: ["5433:5432"]
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-collab}
+    # Only reachable from this machine (used by "python manage.py runserver" in development)
+    ports: ["127.0.0.1:5433:5432"]
     volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U collab -d collab"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   redis:
     image: redis:7
     restart: unless-stopped
-    ports: ["6379:6379"]
+    ports: ["127.0.0.1:6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./server
+    restart: unless-stopped
+    environment:
+      DEBUG: "0"
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in the .env file}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-*}
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_PASSWORD: ${DB_PASSWORD:-collab}
+      REDIS_URL: redis://redis:6379
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+      CSRF_TRUSTED_ORIGINS: ${FRONTEND_URL:-http://localhost:8080}
+      DEFAULT_FROM_EMAIL: "${DEFAULT_FROM_EMAIL:-Collab Editor <noreply@collab.local>}"
+      EMAIL_BACKEND: ${EMAIL_BACKEND:-django.core.mail.backends.console.EmailBackend}
+      EMAIL_HOST: ${EMAIL_HOST:-}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    volumes: [static_data:/app/staticfiles]
+
+  web:
+    build: ./client
+    restart: unless-stopped
+    ports: ["${WEB_PORT:-8080}:80"]
+    depends_on: [backend]
+    volumes: [static_data:/static:ro]
 
 volumes:
   pgdata:
+  static_data:

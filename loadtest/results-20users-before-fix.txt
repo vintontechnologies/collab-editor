@@ -1,0 +1,52 @@
+
+
+  █ THRESHOLDS 
+
+    broadcast_latency_ms
+    ✗ 'p(95)<200' p(95)=15.72s
+
+    ws_connect_ok
+    ✗ 'rate>0.99' rate=93.05%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 72     0.710979/s
+    checks_succeeded...: 93.05% 67 out of 72
+    checks_failed......: 6.94%  5 out of 72
+
+    ✗ websocket connected
+      ↳  93% — ✓ 67 / ✗ 5
+
+    CUSTOM
+    broadcast_latency_ms...........: avg=3.03s    min=37ms    med=274ms    max=32.2s  p(90)=10.63s p(95)=15.72s
+    edits_received.................: 1052   10.388191/s
+    edits_sent.....................: 990    9.77596/s
+
+    HTTP
+    http_req_duration..............: avg=479.99ms min=32.44ms med=65.38ms  max=2.32s  p(90)=1.29s  p(95)=1.56s 
+      { expected_response:true }...: avg=692.85ms min=44.2ms  med=117.19ms max=2.32s  p(90)=1.33s  p(95)=1.93s 
+    http_req_failed................: 32.78% 20 out of 61
+    http_reqs......................: 61     0.602357/s
+
+    EXECUTION
+    iteration_duration.............: avg=16.71s   min=5.06s   med=17.36s   max=20.78s p(90)=19.62s p(95)=19.93s
+    iterations.....................: 72     0.710979/s
+    vus............................: 1      min=0        max=20
+    vus_max........................: 20     min=20       max=20
+
+    NETWORK
+    data_received..................: 348 kB 3.4 kB/s
+    data_sent......................: 73 kB  717 B/s
+
+    WEBSOCKET
+    ws_connect_ok..................: 93.05% 67 out of 72
+    ws_connecting..................: avg=1.74s    min=49.26ms med=1.4s     max=4.77s  p(90)=4.08s  p(95)=4.47s 
+    ws_msgs_received...............: 18485  182.533953/s
+    ws_msgs_sent...................: 990    9.77596/s
+    ws_session_duration............: avg=15.7s    min=4.06s   med=16.36s   max=19.77s p(90)=18.61s p(95)=18.92s
+    ws_sessions....................: 72     0.710979/s
+
+
+
+time="2026-11-21T08:28:35Z" level=error msg="thresholds on metrics 'broadcast_latency_ms, ws_connect_ok' have been crossed"

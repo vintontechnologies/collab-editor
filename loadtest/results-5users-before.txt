@@ -1,0 +1,4 @@
+5 users, before the optimization (edit saved to Postgres before it was relayed, snapshot rule checked on every edit):
+broadcast_latency_ms: avg=181.61ms min=62ms med=166ms max=1.91s p(90)=279.6ms p(95)=315ms
+ws_connect_ok: 100.00% (18 out of 18)
+edits_sent: 266, edits_received: 883

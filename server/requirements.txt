@@ -7,6 +7,7 @@ cffi==2.1.1
 channels==4.3.2
 channels_redis==4.3.0
 constantly==23.10.4
+coverage==7.17.4
 cryptography==50.0.2
 daphne==4.2.3
 Django==6.1.3

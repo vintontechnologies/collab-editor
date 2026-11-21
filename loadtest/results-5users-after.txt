@@ -1,0 +1,50 @@
+
+
+  █ THRESHOLDS 
+
+    broadcast_latency_ms
+    ✓ 'p(95)<200' p(95)=198ms
+
+    ws_connect_ok
+    ✓ 'rate>0.99' rate=100.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 18      0.227328/s
+    checks_succeeded...: 100.00% 18 out of 18
+    checks_failed......: 0.00%   0 out of 18
+
+    ✓ websocket connected
+
+    CUSTOM
+    broadcast_latency_ms...........: avg=91.65ms  min=29ms    med=76ms     max=395ms    p(90)=153.79ms p(95)=198ms  
+    edits_received.................: 887     11.202217/s
+    edits_sent.....................: 266     3.359402/s
+
+    HTTP
+    http_req_duration..............: avg=612.01ms min=35.1ms  med=161.79ms max=2.86s    p(90)=1.56s    p(95)=2s     
+      { expected_response:true }...: avg=852.68ms min=51.42ms med=294.62ms max=2.86s    p(90)=1.71s    p(95)=2.29s  
+    http_req_failed................: 31.25%  5 out of 16
+    http_reqs......................: 16      0.202069/s
+
+    EXECUTION
+    iteration_duration.............: avg=16.13s   min=16.06s  med=16.09s   max=16.89s   p(90)=16.13s   p(95)=16.25s 
+    iterations.....................: 18      0.227328/s
+    vus............................: 1       min=0        max=5
+    vus_max........................: 5       min=5        max=5
+
+    NETWORK
+    data_received..................: 61 kB   768 B/s
+    data_sent......................: 19 kB   237 B/s
+
+    WEBSOCKET
+    ws_connect_ok..................: 100.00% 18 out of 18
+    ws_connecting..................: avg=133.25ms min=59ms    med=88.99ms  max=882.61ms p(90)=132.12ms p(95)=253.9ms
+    ws_msgs_received...............: 2886    36.448249/s
+    ws_msgs_sent...................: 266     3.359402/s
+    ws_session_duration............: avg=15.13s   min=15.06s  med=15.09s   max=15.89s   p(90)=15.13s   p(95)=15.25s 
+    ws_sessions....................: 18      0.227328/s
+
+
+

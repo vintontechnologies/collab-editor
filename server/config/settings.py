@@ -127,3 +127,20 @@ AUTHENTICATION_BACKENDS = [
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "Collab Editor <noreply@collab.local>")
+
+# --- Production settings, all read from environment variables (see docker-compose.yml) ---
+# Behind nginx or a TLS proxy: trust the forwarded protocol so Django knows a request was https
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CSRF_TRUSTED_ORIGINS = [o for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o]
+
+# Real email for invitations. Without EMAIL_HOST, emails keep printing in the server log.
+EMAIL_HOST = os.getenv("EMAIL_HOST", "")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "1") == "1"
+
+# Reuse database connections. Without this, every query from the WebSocket server opened a
+# new Postgres connection (with password authentication), which saturated the server under load.
+DATABASES["default"]["CONN_MAX_AGE"] = int(os.getenv("DB_CONN_MAX_AGE", "600"))
+DATABASES["default"]["CONN_HEALTH_CHECKS"] = True

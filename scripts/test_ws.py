@@ -2,14 +2,17 @@
 """WebSocket test: auth, roles, relay, persistence. Server must run on :8001."""
 import asyncio
 import json
+import os
+import os
 import sys
 import urllib.error
 import urllib.request
 
 import websockets
 
-HTTP = "http://127.0.0.1:8001/api"
-WS = "ws://127.0.0.1:8001/ws/documents"
+HOST = os.environ.get("HOST", "127.0.0.1:8001")
+HTTP = f"http://{HOST}/api"
+WS = f"ws://{HOST}/ws/documents"
 PW = "StrongPass#2026"
 ORIGIN = "http://localhost:5173"
 failures = 0
