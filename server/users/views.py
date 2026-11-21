@@ -1,4 +1,5 @@
-from rest_framework import generics, status
+from drf_spectacular.utils import extend_schema, inline_serializer
+from rest_framework import generics, serializers, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -22,6 +23,11 @@ class LoginView(TokenObtainPairView):
     serializer_class = EmailTokenObtainPairSerializer
 
 
+@extend_schema(
+    request=inline_serializer("LogoutRequest", {"refresh": serializers.CharField()}),
+    responses={204: None},
+    summary="Log out: blacklists the refresh token",
+)
 class LogoutView(APIView):
     """Blacklists the refresh token so it can't be used again."""
 

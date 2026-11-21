@@ -8,6 +8,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from .models import Document, Invitation, Membership
 
@@ -26,6 +27,36 @@ class RoleSerializer(serializers.Serializer):
 
 class LinkSerializer(serializers.Serializer):
     role = serializers.ChoiceField(choices=["off", "viewer", "editor"])
+
+
+# The serializers below only describe responses, for the API documentation
+class MemberSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    email = serializers.EmailField()
+    name = serializers.CharField()
+    avatar = serializers.CharField(allow_blank=True)
+    role = serializers.CharField()
+
+
+class PendingInviteSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    role = serializers.CharField()
+
+
+class MembersResponseSerializer(serializers.Serializer):
+    members = MemberSerializer(many=True)
+    pending_invites = PendingInviteSerializer(many=True)
+
+
+class LinkResponseSerializer(serializers.Serializer):
+    link_role = serializers.CharField()
+    url = serializers.CharField()
+
+
+class JoinResponseSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    title = serializers.CharField()
+    my_role = serializers.CharField()
 
 
 def get_membership(user, doc_id):
@@ -63,6 +94,11 @@ def send_invite_email(doc, inviter, email, role, has_account):
     )
 
 
+@extend_schema_view(
+    get=extend_schema(responses=MembersResponseSerializer, summary="List members and pending invites"),
+    post=extend_schema(request=InviteSerializer, responses={201: MemberSerializer},
+                       summary="Invite someone by email (owner only)"),
+)
 class MembersView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -102,6 +138,11 @@ class MembersView(APIView):
         return Response(result, status=status.HTTP_201_CREATED)
 
 
+@extend_schema_view(
+    patch=extend_schema(request=RoleSerializer, responses=MemberSerializer,
+                        summary="Change a member's role (owner only)"),
+    delete=extend_schema(responses={204: None}, summary="Remove a member, or leave the document"),
+)
 class MemberDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -131,6 +172,11 @@ class MemberDetailView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@extend_schema_view(
+    get=extend_schema(responses=LinkResponseSerializer, summary="Share-link settings"),
+    put=extend_schema(request=LinkSerializer, responses=LinkResponseSerializer,
+                      summary="Turn link sharing on or off (owner only)"),
+)
 class LinkView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -150,6 +196,10 @@ class LinkView(APIView):
         return Response(self._data(doc))
 
 
+@extend_schema_view(
+    post=extend_schema(request=None, responses=JoinResponseSerializer,
+                       summary="Join a document through its share link"),
+)
 class JoinView(APIView):
     """Join a document through its share link, if link sharing is on."""
     permission_classes = [IsAuthenticated]

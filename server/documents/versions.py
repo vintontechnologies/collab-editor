@@ -2,6 +2,8 @@ import base64
 
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
+from drf_spectacular.utils import extend_schema
+from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -19,6 +21,21 @@ def version_data(v):
     }
 
 
+class VersionSerializer(serializers.Serializer):
+    number = serializers.IntegerField()
+    author_name = serializers.CharField()
+    kind = serializers.CharField()
+    label = serializers.CharField(allow_blank=True)
+    created_at = serializers.DateTimeField()
+
+
+class VersionDetailSerializer(VersionSerializer):
+    updates = serializers.ListField(
+        child=serializers.CharField(), help_text="Base64-encoded Yjs updates up to this version"
+    )
+
+
+@extend_schema(responses=VersionSerializer(many=True), summary="Version timeline, newest first")
 class VersionListView(APIView):
     """Timeline: newest first. Any member can see it."""
     permission_classes = [IsAuthenticated]
@@ -29,6 +46,8 @@ class VersionListView(APIView):
         return Response([version_data(v) for v in versions])
 
 
+@extend_schema(responses=VersionDetailSerializer,
+               summary="One version, as the stored edits needed to rebuild it (for preview and restore)")
 class VersionDetailView(APIView):
     """
     The edits up to this version (base64). The browser rebuilds the old document from

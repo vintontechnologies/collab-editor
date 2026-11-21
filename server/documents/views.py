@@ -14,6 +14,8 @@ from .serializers import DocumentSerializer
 class DocumentViewSet(viewsets.ModelViewSet):
     serializer_class = DocumentSerializer
     permission_classes = [IsAuthenticated, DocumentPermission]
+    # The real queryset is built in get_queryset(); this lets the API docs see the id type
+    queryset = Document.objects.none()
 
     def get_queryset(self):
         # Only documents the user is a member of (owned AND shared with them).

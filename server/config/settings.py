@@ -30,6 +30,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",   # keep at the top
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # serves the React build and static files
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -144,3 +145,23 @@ EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "1") == "1"
 # new Postgres connection (with password authentication), which saturated the server under load.
 DATABASES["default"]["CONN_MAX_AGE"] = int(os.getenv("DB_CONN_MAX_AGE", "600"))
 DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
+
+
+# --- Single-container hosting (Render) ---
+import dj_database_url  # noqa: E402
+
+# A hosting platform provides the database as one URL; use it when present
+if os.getenv("DATABASE_URL"):
+    DATABASES["default"] = dj_database_url.parse(
+        os.environ["DATABASE_URL"], conn_max_age=600, conn_health_checks=True
+    )
+
+# The built React app is copied to ./frontend and served by WhiteNoise at the site root
+WHITENOISE_ROOT = BASE_DIR / "frontend"
+WHITENOISE_INDEX_FILE = True
+
+# Render tells the app its public address, which invitation emails link to
+_public_url = os.getenv("RENDER_EXTERNAL_URL")
+if _public_url:
+    FRONTEND_URL = os.getenv("FRONTEND_URL") or _public_url
+    CSRF_TRUSTED_ORIGINS.append(_public_url)
