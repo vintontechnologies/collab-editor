@@ -3,7 +3,7 @@
   █ THRESHOLDS 
 
     broadcast_latency_ms
-    ✗ 'p(95)<200' p(95)=5.12s
+    ✗ 'p(95)<200' p(95)=7.82s
 
     ws_connect_ok
     ✓ 'rate>0.99' rate=100.00%
@@ -11,41 +11,41 @@
 
   █ TOTAL RESULTS 
 
-    checks_total.......: 20      0.153521/s
+    checks_total.......: 20      0.171186/s
     checks_succeeded...: 100.00% 20 out of 20
     checks_failed......: 0.00%   0 out of 20
 
     ✓ websocket connected
 
     CUSTOM
-    broadcast_latency_ms...........: avg=2.07s    min=10ms    med=1.48s   max=5.97s    p(90)=4.76s    p(95)=5.12s   
-    edits_received.................: 21759   167.022936/s
-    edits_sent.....................: 1407    10.800187/s
+    broadcast_latency_ms...........: avg=1.37s    min=13ms    med=125ms   max=9.38s   p(90)=6.76s    p(95)=7.82s   
+    edits_received.................: 18553   158.800237/s
+    edits_sent.....................: 1404    12.017223/s
 
     HTTP
-    http_req_duration..............: avg=658.81ms min=33.1ms  med=65.69ms max=3.57s    p(90)=1.89s    p(95)=2.26s   
-      { expected_response:true }...: avg=658.81ms min=33.1ms  med=65.69ms max=3.57s    p(90)=1.89s    p(95)=2.26s   
+    http_req_duration..............: avg=438.27ms min=23.66ms med=77.13ms max=1.6s    p(90)=1.27s    p(95)=1.37s   
+      { expected_response:true }...: avg=438.27ms min=23.66ms med=77.13ms max=1.6s    p(90)=1.27s    p(95)=1.37s   
     http_req_failed................: 0.00%   0 out of 61
-    http_reqs......................: 61      0.468238/s
+    http_reqs......................: 61      0.522116/s
 
     EXECUTION
-    iteration_duration.............: avg=46.06s   min=46.01s  med=46.03s  max=46.35s   p(90)=46.15s   p(95)=46.2s   
-    iterations.....................: 20      0.153521/s
-    vus............................: 1       min=0        max=20
+    iteration_duration.............: avg=46.06s   min=46.01s  med=46.04s  max=46.24s  p(90)=46.18s   p(95)=46.24s  
+    iterations.....................: 20      0.171186/s
+    vus............................: 2       min=0        max=20
     vus_max........................: 20      min=20       max=20
 
     NETWORK
-    data_received..................: 635 kB  4.9 kB/s
-    data_sent......................: 63 kB   481 B/s
+    data_received..................: 575 kB  4.9 kB/s
+    data_sent......................: 63 kB   536 B/s
 
     WEBSOCKET
     ws_connect_ok..................: 100.00% 20 out of 20
-    ws_connecting..................: avg=98.8ms   min=11.17ms med=46.33ms max=598.14ms p(90)=245.41ms p(95)=393.73ms
-    ws_msgs_received...............: 36096   277.074309/s
-    ws_msgs_sent...................: 1407    10.800187/s
-    ws_session_duration............: avg=45.06s   min=45.01s  med=45.03s  max=45.35s   p(90)=45.15s   p(95)=45.2s   
-    ws_sessions....................: 34      0.260985/s
+    ws_connecting..................: avg=258.39ms min=9.54ms  med=83.32ms max=982.5ms p(90)=868.23ms p(95)=942.63ms
+    ws_msgs_received...............: 32551   278.612975/s
+    ws_msgs_sent...................: 1404    12.017223/s
+    ws_session_duration............: avg=45.06s   min=45.01s  med=45.04s  max=45.24s  p(90)=45.18s   p(95)=45.24s  
+    ws_sessions....................: 34      0.291015/s
 
 
 
-time="2026-11-21T08:35:27Z" level=error msg="thresholds on metrics 'broadcast_latency_ms' have been crossed"
+time="2026-11-21T09:02:38Z" level=error msg="thresholds on metrics 'broadcast_latency_ms' have been crossed"

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Sharing test: invites, role changes, share link, removal. Server must run on :8001.
-BASE=http://127.0.0.1:8001/api
+# BASE=http://127.0.0.1:8001/api
+BASE=https://collab-editor-w8ni.onrender.com/api
 PW='StrongPass#2026'
 H='Content-Type: application/json'
 
