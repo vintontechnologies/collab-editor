@@ -1,165 +1,517 @@
 # Real-Time Collaborative Code & Whiteboard Editor
 
-Multiple people edit the same code file or whiteboard at once. Every change appears on
-everyone's screen immediately, with live cursors, an online-users panel, role-based
-sharing (Owner / Editor / Viewer) and a version history you can preview and restore.
+A full-stack real-time collaboration platform that allows multiple users to work together on code files and digital whiteboards simultaneously. Changes are synchronized instantly across connected users, with live cursors, presence indicators, role-based permissions, and version history.
 
-Built for the IT-Simplera Solutions Full Stack Development Internship (Batch 02, Project 01).
+Developed for the **IT-Simplera Solutions Full Stack Development Internship – Batch 02, Project 01**.
 
-- **Live demo:** https://collab-editor-w8ni.onrender.com
-  (free hosting: after a long idle period the first load can take up to a minute while the service wakes)
-- **API docs (Swagger):** https://collab-editor-w8ni.onrender.com/api/docs/
+<p align="center">
+  <a href="https://collab-editor-w8ni.onrender.com"><strong>Live Demo</strong></a> •
+  <a href="https://collab-editor-w8ni.onrender.com/api/docs/"><strong>API Documentation</strong></a>
+</p>
 
-## Features
+---
 
-- **Authentication:** register, login, logout; hashed passwords; JWT access and refresh tokens;
-  logout blacklists the refresh token.
-- **Documents:** create, rename, delete, duplicate; code or whiteboard; dashboard of owned and shared documents.
-- **Sharing:** invite by email with a role, change or remove members, or share a link. Roles are
-  enforced on the server, including on the WebSocket.
-- **Real-time collaboration:** CRDT-based (Yjs), so simultaneous edits merge without data loss.
-  Live cursors with names and colors, online users panel, offline edits sync on reconnect.
-- **Code editor:** CodeMirror with syntax highlighting (JavaScript, Python, Java, C++, HTML),
-  line numbers, auto-indent, bracket matching, language switcher, automatic saving.
-- **Whiteboard:** pen, rectangle, circle, arrow and text; color and stroke width; move, resize,
-  delete; zoom and pan; undo and redo; real-time sync and persistence.
-- **Version history:** automatic snapshots every 30 seconds or 50 changes; timeline with author and
-  time; read-only preview; restore creates a new version, so history is never lost.
-- **Deployment:** Docker and Docker Compose; also deployed as a single container on Render.
+## Overview
 
-## Architecture
+The application provides a shared workspace where users can create code documents or whiteboards, invite collaborators, and work together in real time.
 
-```
-Browser (React + TypeScript + Yjs)
-   |  HTTPS: REST API (/api)            WebSocket: Yjs updates and cursors (/ws)
-   v
-Nginx (serves the React build, proxies /api and /ws)
-   v
-Django + Django Channels (Daphne)  --- Redis (pub/sub between server instances)
-   v
-PostgreSQL (users, documents, members, edit log, versions)
-```
+It uses **Yjs CRDT technology** to synchronize concurrent changes while minimizing conflicts and preventing data loss during simultaneous editing.
 
-The server never interprets document contents. It authorizes each message, relays it to the other
-users through Redis, and stores it in an append-only edit log. A version is a bookmark in that log,
-so restoring one never deletes anything. The first byte of each binary WebSocket message says what
-it is (edit, cursor, synced, error, join, leave, version).
+The backend handles authentication, document management, access control, collaboration events, and persistent storage. Redis supports real-time communication, while PostgreSQL stores application data and document history.
 
-## Tech stack
+**Deployment:** https://collab-editor-w8ni.onrender.com
 
-| Layer | Technology |
+> **Deployment note:** The application is hosted on Render's free infrastructure. After a period of inactivity, the first request may take up to a minute while the service starts.
+
+## Key Features
+
+### 1. Authentication and User Management
+- User registration and login.
+- Secure password hashing.
+- JWT access and refresh token authentication.
+- Token refresh functionality.
+- Logout with refresh-token blacklisting.
+- User profile management through the API.
+
+### 2. Document Management
+- Create code documents and whiteboards.
+- Rename, delete, and duplicate documents.
+- View documents owned by the user.
+- Access documents shared by other users.
+- Organize collaborative workspaces.
+
+### 3. Role-Based Sharing and Permissions
+
+Documents support three permission levels:
+
+| Role | Permissions |
 |---|---|
-| Frontend | React, TypeScript, Vite, CodeMirror 6, Yjs |
-| Backend | Django, Django REST Framework, Django Channels, SimpleJWT |
-| Real-time | WebSockets, Yjs (CRDT), Redis channel layer |
+| Owner | Full document control, including sharing and member management |
+| Editor | View and modify document content |
+| Viewer | View document content without making changes |
+
+Additional sharing capabilities:
+- Invite collaborators using their email addresses.
+- Change a collaborator's role.
+- Remove collaborators.
+- Configure shareable document links.
+- Join documents through sharing links.
+- Enforce permissions on both REST API endpoints and WebSocket connections.
+
+### 4. Real-Time Collaboration
+- Simultaneous editing by multiple users.
+- Instant synchronization using WebSockets.
+- Conflict-resistant editing using Yjs CRDTs.
+- Live collaborator cursors with names and colors.
+- Online users panel.
+- Synchronization of queued offline edits after reconnecting.
+- Redis-backed communication between server instances.
+
+### 5. Collaborative Code Editor
+
+The code editor is powered by CodeMirror 6.
+
+Features include:
+- Syntax highlighting.
+- JavaScript, Python, Java, C++, and HTML support.
+- Line numbering.
+- Automatic indentation.
+- Bracket matching.
+- Programming language selection.
+- Automatic saving.
+- Real-time collaborative editing.
+
+### 6. Interactive Whiteboard
+
+The whiteboard provides a shared visual workspace.
+
+Supported functionality:
+- Freehand drawing.
+- Rectangle and circle tools.
+- Arrow and text tools.
+- Custom colors and stroke widths.
+- Move and resize objects.
+- Delete selected objects.
+- Zoom and pan.
+- Undo and redo.
+- Real-time synchronization.
+- Persistent whiteboard content.
+
+### 7. Version History and Recovery
+
+The application maintains document history through automatic snapshots.
+
+- Automatic snapshots every 30 seconds or after 50 changes.
+- Version timeline.
+- Author and timestamp information.
+- Read-only version previews.
+- Restore previous versions.
+- Restoring a version creates a new version rather than deleting existing history.
+
+This allows users to review previous work and recover earlier document states.
+
+---
+
+## Technology Stack
+
+| Component | Technologies |
+|---|---|
+| Frontend | React, TypeScript, Vite |
+| Code Editor | CodeMirror 6 |
+| Real-Time Synchronization | Yjs, CRDT |
+| Backend | Python, Django, Django REST Framework |
+| Authentication | SimpleJWT |
+| WebSocket | Django Channels, Daphne |
+| Messaging | Redis |
 | Database | PostgreSQL |
-| DevOps | Docker, Docker Compose, Nginx, Render |
-| Testing | Django test runner (33 tests, 91% coverage), k6 load test |
+| Web Server | Nginx |
+| Containerization | Docker, Docker Compose |
+| Deployment | Render |
+| Testing | Django Test Framework, Coverage.py, k6 |
 
-## Project structure
+## System Architecture
 
+```text
+                  CLIENT APPLICATION
+              React + TypeScript + Yjs
+                         |
+             HTTPS REST API / WebSocket
+                         |
+                         v
+                  NGINX REVERSE PROXY
+                  /              \
+                 /                \
+                v                  v
+          REST API              WebSocket
+                \                  /
+                 \                /
+                  v              v
+                DJANGO + DJANGO CHANNELS
+                         |
+              +----------+----------+
+              |                     |
+              v                     v
+            REDIS               POSTGRESQL
+         Channel Layer       Persistent Storage
+              |                     |
+              v                     v
+       Real-Time Events       Users, Documents,
+       and Collaboration      Members, Edit Logs,
+                              and Version History
 ```
-client/                 React app (components/, pages/, context/, services/, data/, assets/)
-server/
-  config/               settings, URLs, ASGI routing
-  users/                authentication and profile
-  documents/            documents, sharing, versions, WebSocket consumer
-scripts/                end-to-end test scripts (roles, sharing, WebSocket)
-loadtest/               k6 load test and recorded results
-docker-compose.yml      database, Redis, backend, Nginx
-render.yaml             Render deployment Blueprint
+
+### How Collaboration Works
+
+1. A user authenticates and opens a document.
+2. The backend verifies the user's document permissions.
+3. The client establishes a WebSocket connection.
+4. Yjs generates and synchronizes document updates.
+5. Django Channels receives collaboration events.
+6. Redis distributes events to connected collaborators.
+7. Connected clients apply updates and display changes immediately.
+8. The backend records document changes for persistence and version history.
+
+The backend does not interpret the contents of code documents. It handles authorization, synchronization, event distribution, and persistence.
+
+---
+
+## Project Structure
+
+```text
+collab-editor/
+│
+├── client/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── context/
+│   │   ├── services/
+│   │   ├── data/
+│   │   └── assets/
+│   └── package.json
+│
+├── server/
+│   ├── config/
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   └── ASGI routing
+│   │
+│   ├── users/
+│   │   └── Authentication and user management
+│   │
+│   ├── documents/
+│   │   ├── Document management
+│   │   ├── Sharing and permissions
+│   │   ├── Version history
+│   │   └── WebSocket consumer
+│   │
+│   ├── manage.py
+│   └── requirements.txt
+│
+├── scripts/
+│   ├── test_roles.sh
+│   ├── test_sharing.sh
+│   └── test_ws.py
+│
+├── loadtest/
+│   ├── ws_load.js
+│   └── Recorded test results
+│
+├── docker-compose.yml
+├── Dockerfile.render
+├── render.yaml
+├── .env.example
+└── README.md
 ```
 
-## Run it locally
+---
 
-Requires Docker.
+## Getting Started
+
+### Prerequisites
+
+To run the project locally, you need:
+
+- Git
+- Docker
+- Docker Compose
+- A Linux environment or compatible operating system
+
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/vintontechnologies/collab-editor.git
 cd collab-editor
+```
+
+### 2. Configure Environment Variables
+
+Create your environment file:
+
+```bash
 cp .env.example .env
-# put a long random value in SECRET_KEY:   openssl rand -hex 32
+```
+
+Generate a secure Django secret key:
+
+```bash
+openssl rand -hex 32
+```
+
+Configure the generated value as `SECRET_KEY` in your `.env` file. Ensure that the required database, Redis, and application settings are configured according to `.env.example`.
+
+### 3. Build and Start the Application
+
+```bash
 docker compose up -d --build
 ```
 
-Open http://localhost:8080 (change `WEB_PORT` in `.env` if that port is taken).
-Swagger docs are at `/api/docs/`.
-
-### Development without Docker for the app
+Check running containers:
 
 ```bash
-docker compose up -d db redis               # database and Redis only
-cd server && python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-echo "DB_PORT=5433" > .env
-python manage.py migrate && python manage.py runserver 8001
-# in another terminal
-cd client && npm install && npm run dev      # http://localhost:5173
+docker compose ps
 ```
 
-## Tests
+View application logs:
+
+```bash
+docker compose logs -f
+```
+
+### 4. Access the Application
+
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:8080 |
+| Backend API | http://localhost:8080/api/ |
+| Swagger API Docs | http://localhost:8080/api/docs/ |
+
+The default web port is `8080`. It can be changed through the `WEB_PORT` environment variable.
+
+---
+
+## Running Tests
+
+The project includes backend unit tests, HTTP end-to-end tests, WebSocket integration tests, and load testing.
+
+### 1. Backend Unit Tests
+
+From the project root:
 
 ```bash
 cd server
-python manage.py test                        # 33 tests: auth, roles, sharing, versions, WebSocket
-coverage run --source=users,documents manage.py test && coverage report
+python manage.py test
 ```
 
-Result: 33 tests pass, 91% coverage. The scripts in `scripts/` also test roles, sharing and the
-WebSocket against a running server (for example `HOST=127.0.0.1:8080 python scripts/test_ws.py`).
+The backend test suite covers authentication, document permissions, sharing, version history, and WebSocket functionality.
 
-## Load test (k6)
+**Recorded test results:** 33 tests passed.
+
+### 2. Code Coverage
 
 ```bash
-docker run --rm --network host -v "$PWD/loadtest:/loadtest" -e USERS=20 -e HOST=127.0.0.1:8080 \
+coverage run --source=users,documents manage.py test
+coverage report
+```
+
+**Recorded coverage:** 91%.
+
+### 3. End-to-End Testing
+
+The `scripts/` directory contains three independent test scripts designed to communicate with a running application.
+
+| Script | Description |
+|---|---|
+| `test_roles.sh` | Tests role-based permissions over HTTP |
+| `test_sharing.sh` | Runs 26 sharing functionality checks |
+| `test_ws.py` | Runs 13 WebSocket functionality checks |
+
+Run the role permission tests:
+
+```bash
+bash scripts/test_roles.sh
+```
+
+Run the sharing tests:
+
+```bash
+bash scripts/test_sharing.sh
+```
+
+Run the WebSocket tests:
+
+```bash
+python3 scripts/test_ws.py
+```
+
+The WebSocket tests can also be executed through Nginx in the Docker deployment.
+
+**Important:** The application must be running before executing the end-to-end tests. The scripts must target the correct server address and port. For local Docker testing, use the local Nginx endpoint; for deployed testing, use the Render endpoint.
+
+### 4. Load Testing with k6
+
+The project includes a WebSocket load-testing script built with k6.
+
+Run the test using Docker:
+
+```bash
+docker run --rm --network host \
+  -v "$PWD/loadtest:/loadtest" \
+  -e USERS=20 \
+  -e HOST=127.0.0.1:8080 \
   grafana/k6 run /loadtest/ws_load.js
 ```
 
-Many users edit one document; each edit carries its send time, so the test measures how long an
-edit takes to reach the other users. Target from the brief: under 200 ms.
-Measured on one laptop that also ran the load generator, Docker, Postgres and Redis:
+The test simulates multiple users editing the same document and measures the time taken for changes to reach other connected users.
 
-| Run | Median | p(95) |
+The target performance specified in the project brief is under 200 milliseconds.
+
+#### Recorded Performance Results
+
+| Scenario | Median | 95th Percentile |
+|---|---:|---:|
+| 5 users – initial implementation | 166 ms | 315 ms |
+| 5 users – optimized event relay | 76 ms | 198 ms |
+| 20 users – before database connection reuse | 274 ms | 15.7 s |
+
+The 20-user optimized result is not included in the recorded results presented here.
+
+---
+
+## API Documentation
+
+Interactive API documentation is available through Swagger UI:
+
+**[Open API Documentation](https://collab-editor-w8ni.onrender.com/api/docs/)**
+
+### Main API Endpoints
+
+| Method | Endpoint | Description |
 |---|---|---|
-| 5 users, first version (edit saved to the database before it was relayed) | 166 ms | 315 ms |
-| 5 users, after relaying first and saving second | 76 ms | 198 ms |
-| 20 users, before reusing database connections | 274 ms | 15.7 s |
-| 20 users, after reusing database connections | FILL IN | FILL IN |
+| POST | `/api/auth/register/` | Register a user |
+| POST | `/api/auth/login/` | Authenticate a user |
+| POST | `/api/auth/refresh/` | Refresh JWT token |
+| POST | `/api/auth/logout/` | Logout and blacklist refresh token |
+| GET, PATCH | `/api/auth/me/` | Retrieve or update user profile |
+| GET, POST | `/api/documents/` | List or create documents |
+| GET, PATCH, DELETE | `/api/documents/{id}/` | Retrieve, update, or delete a document |
+| POST | `/api/documents/{id}/duplicate/` | Duplicate a document |
+| GET, POST | `/api/documents/{id}/members/` | List or invite collaborators |
+| PATCH, DELETE | `/api/documents/{id}/members/{user_id}/` | Update role or remove collaborator |
+| GET, PUT | `/api/documents/{id}/link/` | Retrieve or configure sharing link |
+| POST | `/api/documents/join/{id}/` | Join through a sharing link |
+| GET | `/api/documents/{id}/versions/` | Retrieve document versions |
+| GET | `/api/documents/{id}/versions/{number}/` | Retrieve a specific version |
 
-Full outputs are in `loadtest/`.
+### WebSocket Endpoint
 
-## Deploy
+```text
+/ws/documents/{id}/?token=<access_token>
+```
 
-- **Any server with Docker:** `docker compose up -d --build` as above (put a TLS proxy such as Caddy in front).
-- **Render (free):** the `render.yaml` Blueprint creates the web service, database and Redis;
-  `Dockerfile.render` builds one image that serves both the API and the React app.
+The WebSocket connection supports real-time document updates, cursor synchronization, presence events, and collaboration status messages.
 
-## API
+---
 
-Interactive documentation: `/api/docs/` (Swagger UI). Summary:
+## Deployment
 
-| Method | Path | Purpose |
-|---|---|---|
-| POST | `/api/auth/register/` `/login/` `/refresh/` `/logout/` | Authentication |
-| GET, PATCH | `/api/auth/me/` | Profile (name, avatar) |
-| GET, POST | `/api/documents/` | List and create documents |
-| GET, PATCH, DELETE | `/api/documents/{id}/` | Read, rename, delete |
-| POST | `/api/documents/{id}/duplicate/` | Duplicate |
-| GET, POST | `/api/documents/{id}/members/` | List members, invite by email |
-| PATCH, DELETE | `/api/documents/{id}/members/{user_id}/` | Change role, remove or leave |
-| GET, PUT | `/api/documents/{id}/link/` | Share-link settings |
-| POST | `/api/documents/join/{id}/` | Join through a share link |
-| GET | `/api/documents/{id}/versions/` and `/{number}/` | Timeline, one version |
-| WebSocket | `/ws/documents/{id}/?token=<access token>` | Real-time collaboration |
+The project supports Docker-based deployment and hosted deployment through Render.
 
-## Known limitations
+### Docker Deployment
 
-- Forgot-password by email and a profile page in the UI are not implemented (the profile API exists).
-- Per-document chat and join/leave toast notifications are not implemented.
-- Edits made while offline are queued in memory: they sync on reconnect, but are lost if the page
-  is closed while offline.
-- The edit log grows without limit; compacting old edits into snapshots would be the next step.
-- If two people change the same whiteboard shape at the same instant, the last write wins for that
-  shape (different shapes always merge).
-- On the free Render plan the service sleeps when idle, the free database expires after 30 days,
-  and invitation emails are printed in the server log instead of being delivered.
+The application can be deployed on a server that supports Docker and Docker Compose:
+
+```bash
+docker compose up -d --build
+```
+
+For production environments, configure HTTPS using a reverse proxy such as Nginx or Caddy, secure environment variables, and persistent database and Redis storage.
+
+### Render Deployment
+
+The project includes:
+
+- `render.yaml` – Render deployment Blueprint.
+- `Dockerfile.render` – Container configuration for the deployed application.
+
+The deployment uses a single container to serve the React frontend and Django backend.
+
+**Live Application:** https://collab-editor-w8ni.onrender.com
+
+**API Documentation:** https://collab-editor-w8ni.onrender.com/api/docs/
+
+---
+
+## Known Limitations
+
+The following limitations are currently identified:
+
+1. Password recovery through email is not implemented.
+2. A dedicated profile page is not implemented in the frontend, although the profile API is available.
+3. Per-document chat and join/leave toast notifications are not implemented.
+4. Offline edits are queued in memory and synchronized after reconnection. Closing the page while offline can result in losing unsynchronized edits.
+5. The edit log grows over time. Log compaction and snapshot-based cleanup would improve long-term storage efficiency.
+6. Simultaneous changes to the same whiteboard shape use last-write-wins behavior. Changes to different shapes can merge independently.
+7. On the free Render plan, services may sleep after inactivity, the free database has a limited lifetime, and invitation emails are logged on the server rather than delivered.
+
+---
+
+## Future Improvements
+
+Potential improvements include:
+
+- Email-based password recovery.
+- Persistent offline editing using IndexedDB.
+- Document chat and collaboration notifications.
+- More advanced whiteboard collaboration conflict resolution.
+- Edit-log compaction and database optimization.
+- Automated invitation email delivery.
+- Expanded load testing and performance monitoring.
+- Additional programming languages and editor features.
+
+---
+
+## Security Considerations
+
+The application incorporates several security measures:
+
+- Password hashing through Django authentication.
+- JWT-based authentication.
+- Refresh-token blacklisting on logout.
+- Server-side role and permission enforcement.
+- WebSocket authorization.
+- Environment-based configuration for sensitive credentials.
+- Database-backed document and user management.
+
+Users must have the appropriate permissions before accessing or modifying shared documents.
+
+---
+
+## Project Information
+
+| Detail | Information |
+|---|---|
+| Project | Real-Time Collaborative Code & Whiteboard Editor |
+| Organization | IT-Simplera Solutions |
+| Internship | Full Stack Development Internship |
+| Batch | Batch 02 |
+| Project Number | Project 01 |
+| Frontend | React and TypeScript |
+| Backend | Django REST Framework |
+| Real-Time Engine | WebSockets and Yjs |
+| Database | PostgreSQL |
+| Deployment | Render and Docker |
+
+## Author
+
+**Vinton Technologies**
+
+GitHub Repository: https://github.com/vintontechnologies/collab-editor
+
+Live Application: https://collab-editor-w8ni.onrender.com
+
+---
+
+<p align="center">
+  <strong>Real-Time Collaboration. Seamless Synchronization. Shared Productivity.</strong>
+</p>
