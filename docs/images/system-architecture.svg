@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="980" viewBox="0 0 1400 980">
+<defs>
+  <linearGradient id="navy" x1="0" x2="1"><stop stop-color="#10264f"/><stop offset="1" stop-color="#174b91"/></linearGradient>
+  <linearGradient id="blue" x1="0" x2="1"><stop stop-color="#e7f1ff"/><stop offset="1" stop-color="#cfe3ff"/></linearGradient>
+  <linearGradient id="green" x1="0" x2="1"><stop stop-color="#e3f8eb"/><stop offset="1" stop-color="#c8f0d6"/></linearGradient>
+  <linearGradient id="purple" x1="0" x2="1"><stop stop-color="#f0eaff"/><stop offset="1" stop-color="#ded2ff"/></linearGradient>
+  <linearGradient id="red" x1="0" x2="1"><stop stop-color="#ffe8e8"/><stop offset="1" stop-color="#ffd0d0"/></linearGradient>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#17345f" flood-opacity=".14"/></filter>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#244a7c"/></marker>
+  <style>
+    .h{font:700 34px Arial,sans-serif;fill:#fff}.title{font:700 24px Arial,sans-serif;fill:#12284c}
+    .sub{font:18px Arial,sans-serif;fill:#263b5b}.small{font:16px Arial,sans-serif;fill:#263b5b}
+    .box{stroke-width:2.5;rx:20;filter:url(#shadow)} .arrow{stroke:#244a7c;stroke-width:4;fill:none;marker-end:url(#arrow)}
+    .panel{fill:#fff;stroke:#d6e2f2;stroke-width:2;rx:22;filter:url(#shadow)}
+  </style>
+</defs>
+<rect width="1400" height="980" fill="#f6f9fe"/>
+<rect x="0" y="0" width="1400" height="100" fill="url(#navy)"/>
+<text x="700" y="63" text-anchor="middle" class="h">SYSTEM ARCHITECTURE</text>
+<text x="700" y="135" text-anchor="middle" class="sub">Client requests, real-time collaboration, event distribution and persistent storage</text>
+
+<!-- Main architecture -->
+<rect x="420" y="170" width="560" height="100" fill="url(#blue)" stroke="#4285e8" class="box"/>
+<text x="700" y="210" text-anchor="middle" class="title">Client Application</text>
+<text x="700" y="242" text-anchor="middle" class="sub">React • TypeScript • Yjs (CRDT)</text>
+<path d="M700 270 V320" class="arrow"/>
+<rect x="420" y="325" width="560" height="82" fill="url(#green)" stroke="#2eaa61" class="box"/>
+<text x="700" y="359" text-anchor="middle" class="title">Nginx Reverse Proxy</text>
+<text x="700" y="385" text-anchor="middle" class="small">HTTPS REST API  •  WebSocket upgrade</text>
+
+<path d="M570 407 V455" class="arrow"/><path d="M830 407 V455" class="arrow"/>
+<rect x="300" y="460" width="360" height="95" fill="url(#purple)" stroke="#8963db" class="box"/>
+<text x="480" y="498" text-anchor="middle" class="title">REST API</text><text x="480" y="529" text-anchor="middle" class="sub">/api • Django REST Framework</text>
+<rect x="740" y="460" width="360" height="95" fill="url(#purple)" stroke="#8963db" class="box"/>
+<text x="920" y="498" text-anchor="middle" class="title">WebSocket</text><text x="920" y="529" text-anchor="middle" class="sub">/ws • Django Channels / Daphne</text>
+<path d="M480 555 V610 H700" class="arrow"/><path d="M920 555 V610 H700" class="arrow"/>
+<rect x="420" y="615" width="560" height="95" fill="url(#blue)" stroke="#4285e8" class="box"/>
+<text x="700" y="654" text-anchor="middle" class="title">Django Application</text>
+<text x="700" y="684" text-anchor="middle" class="sub">Authentication • Authorization • Collaboration logic</text>
+<path d="M700 710 V750 H380 V790" class="arrow"/><path d="M700 750 H1020 V790" class="arrow"/>
+<rect x="180" y="795" width="400" height="110" fill="url(#red)" stroke="#e65b5b" class="box"/>
+<text x="380" y="837" text-anchor="middle" class="title">Redis</text>
+<text x="380" y="870" text-anchor="middle" class="sub">Channel layer • Pub/Sub events</text>
+<rect x="820" y="795" width="400" height="110" fill="url(#green)" stroke="#2eaa61" class="box"/>
+<text x="1020" y="837" text-anchor="middle" class="title">PostgreSQL</text>
+<text x="1020" y="870" text-anchor="middle" class="sub">Users • Documents • Members • Edit logs • Versions</text>
+
+<!-- Side note -->
+<rect x="35" y="190" width="245" height="515" class="panel"/>
+<text x="157" y="235" text-anchor="middle" class="title">Client features</text>
+<text x="65" y="290" class="small">• CodeMirror editor</text><text x="65" y="330" class="small">• Collaborative cursors</text>
+<text x="65" y="370" class="small">• Online presence</text><text x="65" y="410" class="small">• Shared whiteboard</text>
+<text x="65" y="450" class="small">• Offline edit queue</text><text x="65" y="490" class="small">• Version preview</text>
+<text x="65" y="550" class="small">Yjs merges concurrent</text><text x="65" y="578" class="small">updates on connected</text><text x="65" y="606" class="small">clients.</text>
+<rect x="1120" y="190" width="245" height="515" class="panel"/>
+<text x="1242" y="235" text-anchor="middle" class="title">Infrastructure</text>
+<text x="1150" y="290" class="small">• Docker</text><text x="1150" y="330" class="small">• Docker Compose</text>
+<text x="1150" y="370" class="small">• Nginx</text><text x="1150" y="410" class="small">• Render deployment</text>
+<text x="1150" y="470" class="small">Security boundaries</text><text x="1150" y="500" class="small">are enforced by the</text><text x="1150" y="530" class="small">backend for both</text><text x="1150" y="560" class="small">HTTP and WebSocket</text><text x="1150" y="590" class="small">connections.</text>
+<text x="700" y="950" text-anchor="middle" class="small">Real-time updates are distributed through Redis; application data and history are persisted in PostgreSQL.</text>
+</svg>
